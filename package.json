@@ -1,0 +1,28 @@
+{
+  "name": "beyoung-portfolio",
+  "version": "1.0.0",
+  "description": "beyoung 个人主页",
+  "main": "index.html",
+  "scripts": {
+    "dev": "wrangler pages dev .",
+    "deploy": "wrangler pages deploy . --project-name=beyoung",
+    "deploy:staging": "wrangler pages deploy . --env staging --compatibility-date=2024-01-01",
+    "build": "echo 'Static site - no build required'",
+    "preview": "wrangler pages dev . --port 3000"
+  },
+  "keywords": [
+    "portfolio",
+    "backend",
+    "geospatial",
+    "cloudflare-pages"
+  ],
+  "author": "beyoung",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "pnpm@10.9.0+sha512.0486e394640d3c1fb3c9d43d49cf92879ff74f8516959c235308f5a8f62e2e19528a65cdc2a3058f587cde71eba3d5b56327c8c33a97e4c4051ca48a10ca2d5f"
+}

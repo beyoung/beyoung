@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>beyoung - 后端工程师 & 地理工程师</title>
+    <style>
+        :root {
+            /* 白天模式变量 */
+            --bg-color-light: #faf8f5;
+            --text-color-light: #1a1a1a;
+            --border-color-light: #e0e0e0;
+            --card-bg-light: rgba(255, 255, 255, 0.95);
+            --shadow-light: rgba(0, 0, 0, 0.1);
+            
+            /* 夜间模式变量 */
+            --bg-color-dark: #0a0a0a;
+            --text-color-dark: #ffffff;
+            --border-color-dark: #ffffff;
+            --card-bg-dark: transparent;
+            --shadow-dark: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-color-dark);
+            color: var(--text-color-dark);
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: background-color 0.8s ease, color 0.8s ease;
+        }
+
+        body.light-mode {
+            background: var(--bg-color-light);
+            color: var(--text-color-light);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 0;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 60px;
+            background: linear-gradient(to bottom, transparent, var(--text-color-dark));
+        }
+
+        .light-mode .header::before {
+            background: linear-gradient(to bottom, transparent, var(--text-color-light));
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            border: 2px solid var(--border-color-dark);
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            position: relative;
+            background: transparent;
+            transition: border-color 0.8s ease;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .light-mode .profile-img {
+            border-color: var(--border-color-light);
+        }
+
+        .profile-img::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border: 1px solid var(--border-color-dark);
+            border-radius: 50%;
+            opacity: 0.3;
+            transition: border-color 0.8s ease;
+        }
+
+        .light-mode .profile-img::before {
+            border-color: var(--border-color-light);
+        }
+
+        /* 开灯/关灯效果 */
+        .profile-img::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            z-index: 1;
+        }
+
+        .light-mode .profile-img::after {
+            background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, transparent 70%);
+        }
+
+        .profile-img.lighting::after {
+            opacity: 1;
+        }
+
+        /* 闪电图标动画 */
+        .profile-img .lightning-icon {
+            font-size: 36px;
+            transition: all 0.8s ease;
+            z-index: 2;
+            position: relative;
+        }
+
+        .profile-img:hover .lightning-icon {
+            transform: scale(1.1);
+        }
+
+        .profile-img.lighting .lightning-icon {
+            animation: lightning 0.6s ease;
+        }
+
+        @keyframes lightning {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.3) rotate(5deg); }
+            50% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.2) rotate(3deg); }
+            100% { transform: scale(1); }
+        }
+
+        .name {
+            font-size: 3em;
+            font-weight: 300;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+            transition: color 0.8s ease;
+        }
+
+        .title {
+            font-size: 1.1em;
+            opacity: 0.8;
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            transition: color 0.8s ease;
+        }
+
+        .motto {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-bottom: 20px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            transition: color 0.8s ease;
+            font-style: italic;
+            text-transform: uppercase;
+        }
+
+        .poem {
+            font-style: italic;
+            font-size: 0.95em;
+            opacity: 0.7;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.8;
+            border-left: 1px solid var(--border-color-dark);
+            padding-left: 20px;
+            position: relative;
+            transition: border-color 0.8s ease;
+        }
+
+        .light-mode .poem {
+            border-left-color: var(--border-color-light);
+        }
+
+        .poem::before {
+            content: '';
+            position: absolute;
+            left: -1px;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--text-color-dark), transparent);
+            transition: background 0.8s ease;
+        }
+
+        .light-mode .poem::before {
+            background: linear-gradient(to bottom, transparent, var(--text-color-light), transparent);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .card {
+            background: var(--card-bg-dark);
+            border: 1px solid var(--border-color-dark);
+            border-radius: 0;
+            padding: 40px;
+            position: relative;
+            transition: all 0.8s ease;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.6s ease forwards;
+            display: flex;
+            flex-direction: column;
+            min-height: 300px;
+        }
+
+        .light-mode .card {
+            background: var(--card-bg-light);
+            border-color: var(--border-color-light);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 1px solid transparent;
+            background: linear-gradient(45deg, transparent, var(--shadow-dark), transparent);
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .light-mode .card::before {
+            background: linear-gradient(45deg, transparent, var(--shadow-light), transparent);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--border-color-dark);
+            box-shadow: 0 10px 30px var(--shadow-dark);
+        }
+
+        .light-mode .card:hover {
+            border-color: var(--border-color-light);
+            box-shadow: 0 10px 30px var(--shadow-light);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 30px;
+            height: 1px;
+            background: var(--border-color-dark);
+            transition: background 0.3s ease;
+        }
+
+        .light-mode .card-header::after {
+            background: var(--border-color-light);
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-color-dark);
+            border-radius: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-right: 20px;
+            background: transparent;
+            position: relative;
+            transition: border-color 0.3s ease;
+        }
+
+        .light-mode .card-icon {
+            border-color: var(--border-color-light);
+        }
+
+        .card-icon::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border: 1px solid var(--border-color-dark);
+            opacity: 0.3;
+            transition: border-color 0.3s ease;
+        }
+
+        .light-mode .card-icon::before {
+            border-color: var(--border-color-light);
+        }
+
+        .card h3 {
+            font-size: 1.3em;
+            color: var(--text-color-dark);
+            font-weight: 400;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+        }
+
+        .light-mode .card h3 {
+            color: var(--text-color-light);
+        }
+
+        .card p {
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 20px;
+            line-height: 1.7;
+            transition: color 0.3s ease;
+        }
+
+        .light-mode .card p {
+            color: rgba(0,0,0,0.8);
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            margin-bottom: auto;
+        }
+
+        .tag {
+            background: transparent;
+            color: var(--text-color-dark);
+            padding: 8px 16px;
+            border: 1px solid var(--border-color-dark);
+            border-radius: 0;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .light-mode .tag {
+            color: var(--text-color-light);
+            border-color: var(--border-color-light);
+        }
+
+        .tag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--shadow-dark), transparent);
+            transition: left 0.3s ease;
+        }
+
+        .light-mode .tag::before {
+            background: linear-gradient(90deg, transparent, var(--shadow-light), transparent);
+        }
+
+        .tag:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--shadow-dark);
+        }
+
+        .light-mode .tag:hover {
+            box-shadow: 0 5px 15px var(--shadow-light);
+        }
+
+        .tag:hover::before {
+            left: 100%;
+        }
+
+        .hobby-list {
+            list-style: none;
+            margin-top: 20px;
+            margin-bottom: auto;
+        }
+
+        .hobby-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: border-color 0.3s ease;
+        }
+
+        .light-mode .hobby-list li {
+            border-bottom-color: rgba(0,0,0,0.2);
+        }
+
+        .hobby-list li:last-child {
+            border-bottom: none;
+        }
+
+        .hobby-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 0;
+            height: 1px;
+            background: var(--border-color-dark);
+            transition: width 0.3s ease, background 0.3s ease;
+        }
+
+        .light-mode .hobby-list li::before {
+            background: var(--border-color-light);
+        }
+
+        .hobby-list li:hover::before {
+            width: 20px;
+        }
+
+        .hobby-emoji {
+            margin-right: 15px;
+            font-size: 1.1em;
+            opacity: 0.8;
+        }
+
+        .github-stats {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 25px;
+        }
+
+        .github-link {
+            display: inline-block;
+            background: transparent;
+            color: var(--text-color-dark);
+            padding: 15px 30px;
+            border: 1px solid var(--border-color-dark);
+            border-radius: 0;
+            text-decoration: none;
+            font-weight: 300;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .light-mode .github-link {
+            color: var(--text-color-light);
+            border-color: var(--border-color-light);
+        }
+
+        .github-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--shadow-dark), transparent);
+            transition: left 0.3s ease;
+        }
+
+        .light-mode .github-link::before {
+            background: linear-gradient(90deg, transparent, var(--shadow-light), transparent);
+        }
+
+        .github-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px var(--shadow-dark);
+        }
+
+        .light-mode .github-link:hover {
+            box-shadow: 0 10px 25px var(--shadow-light);
+        }
+
+        .github-link:hover::before {
+            left: 100%;
+        }
+
+        .quote-section {
+            text-align: center;
+            margin-top: 60px;
+            padding: 40px;
+            border: 1px solid var(--border-color-dark);
+            position: relative;
+            transition: border-color 0.3s ease;
+        }
+
+        .light-mode .quote-section {
+            border-color: var(--border-color-light);
+        }
+
+        .quote-section::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 20px;
+            height: 20px;
+            border-top: 1px solid var(--border-color-dark);
+            border-left: 1px solid var(--border-color-dark);
+            transition: border-color 0.3s ease;
+        }
+
+        .light-mode .quote-section::before {
+            border-top-color: var(--border-color-light);
+            border-left-color: var(--border-color-light);
+        }
+
+        .quote-section::after {
+            content: '';
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 20px;
+            height: 20px;
+            border-bottom: 1px solid var(--border-color-dark);
+            border-right: 1px solid var(--border-color-dark);
+            transition: border-color 0.3s ease;
+        }
+
+        .light-mode .quote-section::after {
+            border-bottom-color: var(--border-color-light);
+            border-right-color: var(--border-color-light);
+        }
+
+        .daily-quote {
+            font-size: 1.3em;
+            color: var(--text-color-dark);
+            font-style: italic;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .light-mode .daily-quote {
+            color: var(--text-color-light);
+        }
+
+        .quote-author {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9em;
+            font-weight: 300;
+            transition: color 0.3s ease;
+        }
+
+        .light-mode .quote-author {
+            color: rgba(0,0,0,0.6);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+            
+            .name {
+                font-size: 2.5em;
+            }
+
+            .card {
+                padding: 30px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .portfolio-item {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .portfolio-btn {
+                align-self: flex-start;
+            }
+        }
+
+        /* 添加一些微妙的动画效果 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+
+        .portfolio-list {
+            margin-top: 20px;
+        }
+
+        .portfolio-item {
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .light-mode .portfolio-item {
+            border-bottom-color: rgba(0,0,0,0.2);
+        }
+
+        .portfolio-item:last-child {
+            border-bottom: none;
+        }
+
+        .portfolio-item:hover {
+            transform: translateX(5px);
+        }
+
+        .portfolio-info {
+            flex: 1;
+        }
+
+        .portfolio-title {
+            font-size: 1.2em;
+            color: var(--text-color-dark);
+            font-weight: 500;
+            margin-bottom: 8px;
+            transition: color 0.8s ease;
+        }
+
+        .light-mode .portfolio-title {
+            color: var(--text-color-light);
+        }
+
+        .portfolio-desc {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            transition: color 0.8s ease;
+        }
+
+        .light-mode .portfolio-desc {
+            color: rgba(0,0,0,0.7);
+        }
+
+        .portfolio-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .portfolio-tags .tag {
+            font-size: 0.75em;
+            padding: 4px 8px;
+        }
+
+        .portfolio-link {
+            flex-shrink: 0;
+        }
+
+        .portfolio-btn {
+            display: inline-block;
+            background: transparent;
+            color: var(--text-color-dark);
+            padding: 10px 20px;
+            border: 1px solid var(--border-color-dark);
+            border-radius: 0;
+            text-decoration: none;
+            font-weight: 300;
+            font-size: 0.85em;
+            transition: all 0.8s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .light-mode .portfolio-btn {
+            color: var(--text-color-light);
+            border-color: var(--border-color-light);
+        }
+
+        .portfolio-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, var(--shadow-dark), transparent);
+            transition: left 0.3s ease;
+        }
+
+        .light-mode .portfolio-btn::before {
+            background: linear-gradient(90deg, transparent, var(--shadow-light), transparent);
+        }
+
+        .portfolio-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--shadow-dark);
+        }
+
+        .light-mode .portfolio-btn:hover {
+            box-shadow: 0 5px 15px var(--shadow-light);
+        }
+
+        .portfolio-btn:hover::before {
+            left: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="profile-img" id="themeToggle" aria-label="切换主题">
+                <span class="lightning-icon">⚡</span>
+            </div>
+            <h1 class="name">YOUTH</h1>
+            <p class="title">BACKEND ENGINEER · GIS ENGINEER · CODE POET</p>
+            <p class="motto">"What is a youth?"</p>
+            <div class="poem" id="poem">
+                "山重水复疑无路，柳暗花明又一村"<br>
+                — 探索技术如探索地理，总有新的发现
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🔧</div>
+                    <h3>BACKEND STACK</h3>
+                </div>
+                <p>专注于高性能后端系统，热爱现代编程语言与数据处理技术</p>
+                <div class="skill-tags">
+                    <span class="tag">Python</span>
+                    <span class="tag">Golang</span>
+                    <span class="tag">Rust</span>
+                    <span class="tag">Django</span>
+                    <span class="tag">Fiber</span>
+                    <span class="tag">PostgreSQL</span>
+                    <span class="tag">MySQL</span>
+                    <span class="tag">Docker</span>
+                    <span class="tag">Polars</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🗺</div>
+                    <h3>GIS ENGINEERING</h3>
+                </div>
+                <p>运用现代地理信息技术，处理空间数据，构建高性能地图服务</p>
+                <div class="skill-tags">
+                    <span class="tag">PostGIS</span>
+                    <span class="tag">Turf.js</span>
+                    <span class="tag">GDAL</span>
+                    <span class="tag">OSM</span>
+                    <span class="tag">Osmium</span>
+                    <span class="tag">MapLibre</span>
+                    <span class="tag">MBTiles</span>
+                    <span class="tag">PMTiles</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">☕</div>
+                    <h3>LIFESTYLE</h3>
+                </div>
+                <p>工作之余，在运动与文学中寻找平衡与灵感</p>
+                <ul class="hobby-list">
+                    <li><span class="hobby-emoji">🚴</span>骑行 - 用轮子丈量城市与乡野</li>
+                    <li><span class="hobby-emoji">🏀</span>篮球 - 在球场上挥洒汗水与激情</li>
+                    <li><span class="hobby-emoji">📚</span>历史书籍 - 以史为鉴，知兴替之道</li>
+                    <li><span class="hobby-emoji">📜</span>古诗词 - 在字里行间品味千年文化</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">⭐</div>
+                    <h3>OPEN SOURCE</h3>
+                </div>
+                <p>在GitHub上分享代码，与全世界的开发者一起创造</p>
+                <div class="github-stats">
+                    <a href="https://github.com/beyoung" class="github-link" target="_blank">
+                        VISIT MY GITHUB
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">📻</div>
+                    <h3>RadiosMap</h3>
+                </div>
+                <p>全球广播电台地图平台，基于地理位置的音频内容发现服务</p>
+                <div class="github-stats">
+                    <a href="https://radiosmap.com" class="github-link" target="_blank">
+                        VISIT SITE
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">✈️</div>
+                    <h3>AyaMap Airports</h3>
+                </div>
+                <p>Global Airport Database - Find airports worldwide with interactive maps and detailed information</p>
+                <div class="github-stats">
+                    <a href="http://airports.ayamap.com/" class="github-link" target="_blank">
+                        VISIT SITE
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <section class="quote-section">
+            <div class="daily-quote" id="daily-quote">
+                "纸上得来终觉浅，绝知此事要躬行"
+            </div>
+            <div class="quote-author">— 陆游《冬夜读书示子聿》</div>
+        </section>
+    </div>
+
+    <script>
+        // 主题管理
+        class ThemeManager {
+            constructor() {
+                this.themeToggle = document.getElementById('themeToggle');
+                this.lightningIcon = document.querySelector('.lightning-icon');
+                this.body = document.body;
+                
+                this.init();
+            }
+
+            init() {
+                // 检查本地存储的主题
+                const savedTheme = localStorage.getItem('theme');
+                
+                if (savedTheme) {
+                    this.setTheme(savedTheme);
+                } else {
+                    // 根据系统偏好自动选择主题
+                    this.autoDetectTheme();
+                }
+
+                // 监听系统主题变化
+                this.watchSystemTheme();
+                
+                // 绑定切换事件到profile-img
+                this.themeToggle.addEventListener('click', () => {
+                    this.toggleTheme();
+                });
+            }
+
+            autoDetectTheme() {
+                // 检查系统是否支持 prefers-color-scheme
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    this.setTheme('dark');
+                } else {
+                    this.setTheme('light');
+                }
+            }
+
+            watchSystemTheme() {
+                // 监听系统主题变化
+                const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                
+                mediaQuery.addEventListener('change', (e) => {
+                    // 只有在用户没有手动设置主题时才自动切换
+                    if (!localStorage.getItem('theme')) {
+                        this.setTheme(e.matches ? 'dark' : 'light');
+                    }
+                });
+            }
+
+            setTheme(theme) {
+                if (theme === 'light') {
+                    this.body.classList.add('light-mode');
+                } else {
+                    this.body.classList.remove('light-mode');
+                }
+                
+                localStorage.setItem('theme', theme);
+            }
+
+            toggleTheme() {
+                // 添加开灯/关灯动画效果
+                this.themeToggle.classList.add('lighting');
+                
+                // 播放闪电动画
+                this.lightningIcon.style.animation = 'none';
+                setTimeout(() => {
+                    this.lightningIcon.style.animation = 'lightning 0.6s ease';
+                }, 10);
+
+                // 增加延迟时间，让动画先完整播放
+                setTimeout(() => {
+                    const currentTheme = this.body.classList.contains('light-mode') ? 'light' : 'dark';
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    this.setTheme(newTheme);
+                    
+                    // 移除动画类
+                    setTimeout(() => {
+                        this.themeToggle.classList.remove('lighting');
+                    }, 500);
+                }, 800);
+            }
+        }
+
+        // 初始化主题管理器
+        const themeManager = new ThemeManager();
+
+        // 古诗词轮播
+        const poems = [
+            {
+                text: "山重水复疑无路，柳暗花明又一村",
+                desc: "— 探索技术如探索地理，总有新的发现"
+            },
+            {
+                text: "路漫漫其修远兮，吾将上下而求索",
+                desc: "— 在代码与地图中寻找真理"
+            },
+            {
+                text: "会当凌绝顶，一览众山小",
+                desc: "— 技术攀登，永无止境"
+            },
+            {
+                text: "纸上得来终觉浅，绝知此事要躬行",
+                desc: "— 理论与实践并重"
+            }
+        ];
+
+        const quotes = [
+            {
+                text: "纸上得来终觉浅，绝知此事要躬行",
+                author: "陆游《冬夜读书示子聿》"
+            },
+            {
+                text: "学而时习之，不亦说乎",
+                author: "《论语·学而》"
+            },
+            {
+                text: "千里之行，始于足下",
+                author: "《老子》"
+            },
+            {
+                text: "博学之，审问之，慎思之，明辨之，笃行之",
+                author: "《礼记·中庸》"
+            }
+        ];
+
+        let poemIndex = 0;
+        let quoteIndex = 0;
+
+        function rotatePoem() {
+            const poemElement = document.getElementById('poem');
+            poemElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                poemIndex = (poemIndex + 1) % poems.length;
+                poemElement.innerHTML = `"${poems[poemIndex].text}"<br>${poems[poemIndex].desc}`;
+                poemElement.style.opacity = '1';
+            }, 500);
+        }
+
+        function rotateQuote() {
+            const quoteElement = document.getElementById('daily-quote');
+            const authorElement = document.querySelector('.quote-author');
+            
+            quoteElement.style.opacity = '0';
+            authorElement.style.opacity = '0';
+            
+            setTimeout(() => {
+                quoteIndex = (quoteIndex + 1) % quotes.length;
+                quoteElement.textContent = `"${quotes[quoteIndex].text}"`;
+                authorElement.textContent = `— ${quotes[quoteIndex].author}`;
+                quoteElement.style.opacity = '1';
+                authorElement.style.opacity = '1';
+            }, 500);
+        }
+
+        // 添加过渡效果
+        document.getElementById('poem').style.transition = 'opacity 0.5s ease';
+        document.getElementById('daily-quote').style.transition = 'opacity 0.5s ease';
+        document.querySelector('.quote-author').style.transition = 'opacity 0.5s ease';
+
+        // 每8秒轮换诗词和名言
+        setInterval(rotatePoem, 8000);
+        setInterval(rotateQuote, 10000);
+
+        // 添加卡片悬浮效果
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // 技能标签点击效果
+        document.querySelectorAll('.tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                this.style.animation = 'pulse 0.6s ease';
+                setTimeout(() => {
+                    this.style.animation = '';
+                }, 600);
+            });
+        });
+
+        // 添加脉冲动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# 重定向根路径到index.html
+/ /index.html 200
+
+# 处理404错误
+/* /index.html 404 
