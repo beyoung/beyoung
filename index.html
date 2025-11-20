@@ -19,6 +19,9 @@
             --border-color-dark: #ffffff;
             --card-bg-dark: transparent;
             --shadow-dark: rgba(255, 255, 255, 0.1);
+
+            /* 下拉位移变量，用于联动顶部竖线高度 */
+            --pull-shift: 0px;
         }
 
         * {
@@ -45,6 +48,7 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
+            transition: transform 0.3s ease;
         }
 
         .header {
@@ -56,17 +60,20 @@
         .header::before {
             content: '';
             position: absolute;
-            top: 0;
+            top: calc(-1 * var(--pull-shift, 0px));
             left: 50%;
             transform: translateX(-50%);
             width: 2px;
-            height: 60px;
+            height: calc(60px + var(--pull-shift, 0px));
             background: linear-gradient(to bottom, transparent, var(--text-color-dark));
+            transition: top 0.2s ease, height 0.2s ease;
         }
 
         .light-mode .header::before {
             background: linear-gradient(to bottom, transparent, var(--text-color-light));
         }
+
+        /* 统一为单元素渐变竖线，并仅向上延长 */
 
         .profile-img {
             width: 120px;
@@ -899,6 +906,7 @@
                 this.themeToggle = document.getElementById('themeToggle');
                 this.lightningIcon = document.querySelector('.lightning-icon');
                 this.body = document.body;
+                this.container = document.querySelector('.container');
                 
                 this.init();
             }
@@ -921,6 +929,9 @@
                 this.themeToggle.addEventListener('click', () => {
                     this.toggleTheme();
                 });
+
+                // 绑定下拉手势切换主题
+                this.bindPullToToggle();
             }
 
             autoDetectTheme() {
@@ -975,6 +986,66 @@
                         this.themeToggle.classList.remove('lighting');
                     }, 500);
                 }, 800);
+            }
+
+            bindPullToToggle() {
+                let startY = null;
+                let pulling = false;
+                const threshold = 80; // 触发切换的下拉距离
+                const maxShift = 120; // 页面下移的最大位移
+
+                const getY = (e) => {
+                    if (e.touches && e.touches[0]) return e.touches[0].clientY;
+                    if (e.changedTouches && e.changedTouches[0]) return e.changedTouches[0].clientY;
+                    return e.clientY;
+                };
+
+                const onStart = (e) => {
+                    startY = getY(e);
+                    pulling = true;
+                };
+
+                const onMove = (e) => {
+                    if (!pulling || startY === null) return;
+                    const currentY = getY(e);
+                    let deltaY = currentY - startY;
+                    if (deltaY > 0) {
+                        // 阻止页面滚动，确保下拉效果明显
+                        if (e.cancelable) e.preventDefault();
+                        const shift = Math.min(deltaY, maxShift);
+                        this.container.style.transform = `translateY(${shift}px)`;
+                        document.documentElement.style.setProperty('--pull-shift', `${shift}px`);
+                    } else {
+                        // 向上或无移动时，复位变量
+                        document.documentElement.style.setProperty('--pull-shift', '0px');
+                        this.container.style.transform = 'translateY(0)';
+                    }
+                };
+
+                const onEnd = (e) => {
+                    if (!pulling) return;
+                    pulling = false;
+                    const endY = getY(e);
+                    const deltaY = (endY ?? startY) - startY;
+                    // 回弹到原位
+                    this.container.style.transform = 'translateY(0)';
+                    document.documentElement.style.setProperty('--pull-shift', '0px');
+                    // 达到阈值则切换主题
+                    if (deltaY >= threshold) {
+                        this.toggleTheme();
+                    }
+                    startY = null;
+                };
+
+                // 鼠标事件
+                this.themeToggle.addEventListener('mousedown', onStart);
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onEnd);
+
+                // 触摸事件（移动端）
+                this.themeToggle.addEventListener('touchstart', onStart, { passive: false });
+                window.addEventListener('touchmove', onMove, { passive: false });
+                window.addEventListener('touchend', onEnd);
             }
         }
 
